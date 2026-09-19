@@ -95,9 +95,7 @@ Steps 2, 3 and 4 all live *inside* the saved model file, so `predict.py` cannot
 prepare the data differently from how it was trained. That is the usual way these
 projects break.
 
-## Live website
-
-**https://house-price-prediction.vercel.app**
+## The website
 
 Type in a neighbourhood and it prices it instantly. There is no server — the
 browser downloads the model as JSON and does the maths itself, so nothing you
@@ -110,6 +108,21 @@ them, which is exactly what scikit-learn does in Python.
 
 Verified: the browser's answers match scikit-learn's to within **2 cents** across
 all 4,128 test neighbourhoods.
+
+### Deploying it
+
+The site is static, so it needs no server. On [vercel.com](https://vercel.com),
+**Add New → Project → Import** this repository and deploy. `vercel.json` already
+points Vercel at the `web/` folder. If the deploy comes up empty, set **Root
+Directory** to `web` in the project settings instead.
+
+Or from the command line:
+
+```bash
+brew install vercel
+vercel login
+vercel --prod
+```
 
 ## Running it
 
