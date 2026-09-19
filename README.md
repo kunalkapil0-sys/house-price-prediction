@@ -1,5 +1,7 @@
 # House Price Prediction
 
+### ▶ [Try it live](https://house-price-prediction-eight-sigma.vercel.app)
+
 A machine learning model that predicts house prices in California, trained on the
 [California Housing dataset](https://www.kaggle.com/datasets/camnugent/california-housing-prices)
 from Kaggle.
@@ -11,25 +13,25 @@ ocean — and it tells you what homes there are worth.
 
 | | |
 |---|---|
-| **Accuracy** | **82.3%** |
-| **Average error** | $31,588 |
-| **R² score** | 0.817 |
+| **Accuracy** | **80.3%** |
+| **Average error** | $35,394 |
+| **R² score** | 0.781 |
 | **Average house price** | $206,856 |
 
-**What "82.3% accurate" means here.** Predicting a price is not a right-or-wrong
+**What "80.3% accurate" means here.** Predicting a price is not a right-or-wrong
 answer like a yes/no question, so accuracy is measured by how *close* the guess
 lands. Each guess is scored by how far off it is as a share of the real price,
-and those misses average 17.7% — so the model is 82.3% accurate.
+and those misses average 19.7% — so the model is 80.3% accurate.
 
 In plainer terms:
 
 | | |
 |---|---|
-| Guesses within 10% of the real price | 44 out of 100 |
-| Guesses within 20% of the real price | 71 out of 100 |
+| Guesses within 10% of the real price | 39 out of 100 |
+| Guesses within 20% of the real price | 65 out of 100 |
 
-The **R² score of 0.817** is the measure a data scientist would ask for. It says
-the model explains 81.7% of why prices differ between neighbourhoods. A score of
+The **R² score of 0.781** is the measure a data scientist would ask for. It says
+the model explains 78.1% of why prices differ between neighbourhoods. A score of
 1.0 would be perfect; 0.0 would mean the model is no better than always guessing
 the average price.
 
@@ -46,12 +48,12 @@ ceiling and cannot be predicted properly.
 | Model | Accuracy | Average error | R² |
 |---|---|---|---|
 | Linear Regression | 70.8% | $50,670 | 0.625 |
-| **Random Forest** | **82.3%** | **$31,588** | **0.817** |
+| **Random Forest** | **80.3%** | **$35,394** | **0.781** |
 
 Linear Regression draws one straight line through the data. Random Forest asks
 hundreds of yes/no questions instead ("is income above 3?", "is it inland?") and
 averages the answers, so it can handle the fact that price does not rise in a
-straight line. It cut the error by **$19,000 per house**, so it is the one kept.
+straight line. It cut the error by **$15,000 per house**, so it is the one kept.
 
 ## What actually decides the price
 
