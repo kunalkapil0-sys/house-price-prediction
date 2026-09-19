@@ -16,12 +16,17 @@ warnings.filterwarnings("ignore", message=".*encountered in matmul")
 
 import joblib
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.metrics import (
+    mean_absolute_error,
+    mean_absolute_percentage_error,
+    r2_score,
+)
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder, StandardScaler
@@ -102,13 +107,34 @@ def main():
         model.fit(X_train, y_train)               # <- this is the learning
 
         guesses = model.predict(X_test)
+
+        # How many dollars off is a typical guess?
         average_error = mean_absolute_error(y_test, guesses)
+
+        # Accuracy as a percentage. First work out how far off each guess is
+        # as a share of the real price, then take 100% minus the average.
+        # So 82% accurate means a typical guess is 18% away from the truth.
+        accuracy = 100 - (mean_absolute_percentage_error(y_test, guesses) * 100)
+
+        # How often does the guess land close to the real price?
+        how_far_off = np.abs(guesses - y_test) / y_test
+        within_10 = (how_far_off <= 0.10).mean() * 100
+        within_20 = (how_far_off <= 0.20).mean() * 100
+
+        # R2: 1.0 would be perfect, 0.0 would be no better than always
+        # guessing the average price.
         score = r2_score(y_test, guesses)
 
-        results[name] = {"average_error": average_error, "r2": score}
+        results[name] = {
+            "average_error": average_error,
+            "accuracy": accuracy,
+            "within_10": within_10,
+            "within_20": within_20,
+            "r2": score,
+        }
         trained[name] = model
-        print(f"{name:<18} average error ${average_error:,.0f}   "
-              f"accuracy score {score:.3f}")
+        print(f"{name:<18} accuracy {accuracy:.1f}%   "
+              f"average error ${average_error:,.0f}   R2 {score:.3f}")
 
     # ---------------------------------------------------------------
     # 5. Keep the better model
@@ -117,8 +143,11 @@ def main():
     best_model = trained[best_name]
     best = results[best_name]
     print(f"\nKeeping the {best_name}.")
-    print(f"It is off by ${best['average_error']:,.0f} on average, "
-          f"on homes averaging ${y.mean():,.0f}.")
+    print(f"  Accuracy:            {best['accuracy']:.1f}%")
+    print(f"  Typical miss:        ${best['average_error']:,.0f} "
+          f"(on homes averaging ${y.mean():,.0f})")
+    print(f"  Within 10% of price: {best['within_10']:.0f} out of every 100 guesses")
+    print(f"  Within 20% of price: {best['within_20']:.0f} out of every 100 guesses")
 
     # ---------------------------------------------------------------
     # 6. Save the model and a picture of how it did
@@ -147,9 +176,13 @@ def main():
         "dataset": "California Housing (camnugent/california-housing-prices)",
         "rows": len(df),
         "model_used": best_name,
+        "accuracy_percent": round(best["accuracy"], 1),
         "average_error_dollars": round(best["average_error"]),
+        "within_10_percent": round(best["within_10"], 1),
+        "within_20_percent": round(best["within_20"], 1),
         "r2_score": round(best["r2"], 3),
-        "all_models": {k: {"average_error_dollars": round(v["average_error"]),
+        "all_models": {k: {"accuracy_percent": round(v["accuracy"], 1),
+                           "average_error_dollars": round(v["average_error"]),
                            "r2_score": round(v["r2"], 3)}
                        for k, v in results.items()},
     }, indent=2) + "\n")

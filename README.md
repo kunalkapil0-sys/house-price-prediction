@@ -11,11 +11,27 @@ ocean — and it tells you what homes there are worth.
 
 | | |
 |---|---|
+| **Accuracy** | **82.3%** |
 | **Average error** | $31,588 |
-| **Accuracy score (R²)** | 0.817 |
+| **R² score** | 0.817 |
 | **Average house price** | $206,856 |
 
-So a typical guess is off by about **15%** of the home's value.
+**What "82.3% accurate" means here.** Predicting a price is not a right-or-wrong
+answer like a yes/no question, so accuracy is measured by how *close* the guess
+lands. Each guess is scored by how far off it is as a share of the real price,
+and those misses average 17.7% — so the model is 82.3% accurate.
+
+In plainer terms:
+
+| | |
+|---|---|
+| Guesses within 10% of the real price | 44 out of 100 |
+| Guesses within 20% of the real price | 71 out of 100 |
+
+The **R² score of 0.817** is the measure a data scientist would ask for. It says
+the model explains 81.7% of why prices differ between neighbourhoods. A score of
+1.0 would be perfect; 0.0 would mean the model is no better than always guessing
+the average price.
 
 ![Predictions vs real prices](reports/predictions.png)
 
@@ -27,10 +43,10 @@ ceiling and cannot be predicted properly.
 
 ## Two models, compared
 
-| Model | Average error | R² |
-|---|---|---|
-| Linear Regression | $50,670 | 0.625 |
-| **Random Forest** | **$31,588** | **0.817** |
+| Model | Accuracy | Average error | R² |
+|---|---|---|---|
+| Linear Regression | 70.8% | $50,670 | 0.625 |
+| **Random Forest** | **82.3%** | **$31,588** | **0.817** |
 
 Linear Regression draws one straight line through the data. Random Forest asks
 hundreds of yes/no questions instead ("is income above 3?", "is it inland?") and

@@ -2,14 +2,19 @@
   "dataset": "California Housing (camnugent/california-housing-prices)",
   "rows": 20640,
   "model_used": "Random Forest",
+  "accuracy_percent": 82.3,
   "average_error_dollars": 31588,
+  "within_10_percent": 44.1,
+  "within_20_percent": 71.0,
   "r2_score": 0.817,
   "all_models": {
     "Linear Regression": {
+      "accuracy_percent": 70.8,
       "average_error_dollars": 50670,
       "r2_score": 0.625
     },
     "Random Forest": {
+      "accuracy_percent": 82.3,
       "average_error_dollars": 31588,
       "r2_score": 0.817
     }
