@@ -92,10 +92,11 @@ def main():
     # ---------------------------------------------------------------
     models = {
         "Linear Regression": LinearRegression(),
-        # min_samples_leaf=2 stops the trees splitting down to single houses.
-        # It is slightly more accurate AND makes the saved file 8x smaller.
+        # 40 trees, and each tree stops splitting once a branch has 20
+        # neighbourhoods in it. A bigger forest scores about 2% better but is
+        # 27x larger, which is too heavy to send to a web browser.
         "Random Forest": RandomForestRegressor(
-            n_estimators=100, min_samples_leaf=2, random_state=42, n_jobs=-1
+            n_estimators=40, min_samples_leaf=20, random_state=42, n_jobs=-1
         ),
     }
 

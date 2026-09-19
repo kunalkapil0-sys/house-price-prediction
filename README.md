@@ -95,6 +95,22 @@ Steps 2, 3 and 4 all live *inside* the saved model file, so `predict.py` cannot
 prepare the data differently from how it was trained. That is the usual way these
 projects break.
 
+## Live website
+
+**https://house-price-prediction.vercel.app**
+
+Type in a neighbourhood and it prices it instantly. There is no server — the
+browser downloads the model as JSON and does the maths itself, so nothing you
+type is ever sent anywhere.
+
+`src/export_for_web.py` converts the trained forest into `web/model.json`: the
+questions each tree asks, the price at the end of each branch, and the numbers
+needed to prepare the input. The JavaScript then walks all 40 trees and averages
+them, which is exactly what scikit-learn does in Python.
+
+Verified: the browser's answers match scikit-learn's to within **2 cents** across
+all 4,128 test neighbourhoods.
+
 ## Running it
 
 ```bash
@@ -108,6 +124,7 @@ pip install -r requirements.txt
 python src/download_data.py   # get the dataset
 python src/train.py           # train the model (takes about 20 seconds)
 python src/predict.py         # predict some prices
+python src/export_for_web.py  # rebuild web/model.json for the website
 ```
 
 The trained model file is not stored in this repo. It is 17 MB of saved decision
@@ -142,9 +159,10 @@ Without a token it downloads an identical public copy instead, so it works eithe
 
 ```
 data/       the dataset
-src/        download, train and predict scripts
+src/        download, train, predict and export scripts
 models/     the trained model
 reports/    the chart and the scores
+web/        the website, and the model exported as JSON
 ```
 
 ## Limitations

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>House Price Predictor</title>
+<meta name="description" content="Predicts California house prices with a Random Forest trained on the Kaggle California Housing dataset.">
+<style>
+  :root {
+    --bg: #f6f7f9;
+    --card: #ffffff;
+    --text: #1a202c;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --accent: #2b6cb0;
+    --accent-soft: #ebf4ff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f141a;
+      --card: #171e26;
+      --text: #e8edf3;
+      --muted: #94a3b8;
+      --line: #2a343f;
+      --accent: #63a4ff;
+      --accent-soft: #1b2733;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 32px 16px 64px;
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 1.75rem; margin: 0 0 6px; letter-spacing: -0.02em; }
+  .sub { color: var(--muted); margin: 0 0 28px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 22px;
+    margin-bottom: 18px;
+  }
+  .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } }
+  label { display: block; font-size: 0.82rem; font-weight: 600; margin-bottom: 5px; }
+  .hint { font-weight: 400; color: var(--muted); }
+  input, select {
+    width: 100%; padding: 9px 11px; font-size: 0.95rem;
+    border: 1px solid var(--line); border-radius: 8px;
+    background: var(--bg); color: var(--text);
+  }
+  input:focus, select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  button {
+    width: 100%; margin-top: 20px; padding: 13px;
+    font-size: 1rem; font-weight: 600;
+    background: var(--accent); color: #fff;
+    border: 0; border-radius: 9px; cursor: pointer;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:disabled { opacity: 0.5; cursor: wait; }
+  #result {
+    margin-top: 18px; padding: 22px; text-align: center;
+    background: var(--accent-soft); border-radius: 11px; display: none;
+  }
+  #price { font-size: 2.3rem; font-weight: 700; letter-spacing: -0.03em; }
+  #caveat { color: var(--muted); font-size: 0.85rem; margin-top: 6px; }
+  .facts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center; }
+  .facts div { padding: 12px 6px; }
+  .facts b { display: block; font-size: 1.3rem; }
+  .facts span { color: var(--muted); font-size: 0.78rem; }
+  footer { color: var(--muted); font-size: 0.85rem; text-align: center; margin-top: 26px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>House Price Predictor</h1>
+  <p class="sub">
+    Trained on 20,640 California neighbourhoods from the
+    <a href="https://www.kaggle.com/datasets/camnugent/california-housing-prices">Kaggle California Housing dataset</a>.
+    Everything runs in your browser — nothing is sent anywhere.
+  </p>
+
+  <div class="card">
+    <div class="facts">
+      <div><b>80.3%</b><span>accuracy</span></div>
+      <div><b>$35,394</b><span>typical miss</span></div>
+      <div><b>40</b><span>decision trees</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+      <div>
+        <label>Median income <span class="hint">(in $10,000s)</span></label>
+        <input type="number" id="median_income" value="3.87" step="0.1" min="0">
+      </div>
+      <div>
+        <label>Distance to ocean</label>
+        <select id="ocean_proximity"></select>
+      </div>
+      <div>
+        <label>Age of houses <span class="hint">(years)</span></label>
+        <input type="number" id="housing_median_age" value="29" min="1" max="52">
+      </div>
+      <div>
+        <label>Households <span class="hint">(in the area)</span></label>
+        <input type="number" id="households" value="500" min="1">
+      </div>
+      <div>
+        <label>Total rooms <span class="hint">(in the area)</span></label>
+        <input type="number" id="total_rooms" value="2636" min="1">
+      </div>
+      <div>
+        <label>Total bedrooms <span class="hint">(blank is fine)</span></label>
+        <input type="number" id="total_bedrooms" value="538" min="0">
+      </div>
+      <div>
+        <label>Population</label>
+        <input type="number" id="population" value="1425" min="1">
+      </div>
+      <div>
+        <label>Longitude <span class="hint">(California: −124 to −114)</span></label>
+        <input type="number" id="longitude" value="-119.57" step="0.01">
+      </div>
+      <div>
+        <label>Latitude <span class="hint">(California: 32 to 42)</span></label>
+        <input type="number" id="latitude" value="35.63" step="0.01">
+      </div>
+    </div>
+
+    <button id="go" disabled>Loading model…</button>
+
+    <div id="result">
+      <div id="price"></div>
+      <div id="caveat"></div>
+    </div>
+  </div>
+
+  <footer>
+    1990 census data, so these are 1990 prices.
+    <a href="https://github.com/kunalkapil0-sys/house-price-prediction">Source on GitHub</a>
+  </footer>
+
+</div>
+
+<script>
+// ---------------------------------------------------------------------------
+// The model is a Random Forest: 40 separate trees of yes/no questions.
+// To predict, we walk down every tree and average the 40 answers.
+// ---------------------------------------------------------------------------
+let MODEL = null;
+
+fetch("model.json")
+  .then(r => r.json())
+  .then(data => {
+    MODEL = data;
+
+    // Fill the dropdown with the categories the model was trained on.
+    const select = document.getElementById("ocean_proximity");
+    const labels = {
+      "<1H OCEAN": "Within an hour of the ocean",
+      "INLAND": "Inland",
+      "ISLAND": "Island",
+      "NEAR BAY": "Near the bay",
+      "NEAR OCEAN": "Near the ocean"
+    };
+    MODEL.categories.forEach(c => {
+      const option = document.createElement("option");
+      option.value = c;
+      option.textContent = labels[c] || c;
+      select.appendChild(option);
+    });
+    select.value = "<1H OCEAN";
+
+    const button = document.getElementById("go");
+    button.disabled = false;
+    button.textContent = "Predict the price";
+  })
+  .catch(() => {
+    document.getElementById("go").textContent = "Could not load the model";
+  });
+
+// Step 1: turn the form into the 13 numbers the model expects.
+function buildFeatures() {
+  const features = [];
+
+  // The 8 number columns: fill blanks, then rescale exactly as training did.
+  MODEL.numeric_columns.forEach((name, i) => {
+    const raw = document.getElementById(name).value;
+    // An empty box means "not recorded", so use the same median training used.
+    const value = raw === "" ? MODEL.medians[i] : parseFloat(raw);
+    features.push((value - MODEL.means[i]) / MODEL.scales[i]);
+  });
+
+  // The word column becomes five 1s and 0s, one per category.
+  const chosen = document.getElementById("ocean_proximity").value;
+  MODEL.categories.forEach(c => features.push(c === chosen ? 1 : 0));
+
+  return features;
+}
+
+// Step 2: walk one tree from the top until a branch ends, and read its price.
+function walkTree(tree, features) {
+  let node = 0;
+  while (tree.left[node] !== -1) {          // -1 means the branch ends here
+    const value = features[tree.feature[node]];
+    // Math.fround narrows to 32-bit, because scikit-learn compares in 32-bit.
+    // Without it, a value sitting exactly on a boundary takes the wrong branch.
+    if (Math.fround(value) <= tree.threshold[node]) {
+      node = tree.left[node];
+    } else {
+      node = tree.right[node];
+    }
+  }
+  return tree.value[node];
+}
+
+// Step 3: average all 40 trees.
+function predict() {
+  const features = buildFeatures();
+  let total = 0;
+  for (const tree of MODEL.trees) {
+    total += walkTree(tree, features);
+  }
+  return total / MODEL.trees.length;
+}
+
+document.getElementById("go").addEventListener("click", () => {
+  const price = predict();
+  const money = price.toLocaleString("en-US", {
+    style: "currency", currency: "USD", maximumFractionDigits: 0
+  });
+  document.getElementById("price").textContent = money;
+  document.getElementById("caveat").textContent =
+    "Typically within about $35,000 of the real price.";
+  document.getElementById("result").style.display = "block";
+});
+</script>
+</body>
+</html>
