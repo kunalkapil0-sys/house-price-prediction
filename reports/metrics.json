@@ -1,0 +1,17 @@
+{
+  "dataset": "California Housing (camnugent/california-housing-prices)",
+  "rows": 20640,
+  "model_used": "Random Forest",
+  "average_error_dollars": 31588,
+  "r2_score": 0.817,
+  "all_models": {
+    "Linear Regression": {
+      "average_error_dollars": 50670,
+      "r2_score": 0.625
+    },
+    "Random Forest": {
+      "average_error_dollars": 31588,
+      "r2_score": 0.817
+    }
+  }
+}
