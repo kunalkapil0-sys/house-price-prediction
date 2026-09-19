@@ -95,7 +95,9 @@ Steps 2, 3 and 4 all live *inside* the saved model file, so `predict.py` cannot
 prepare the data differently from how it was trained. That is the usual way these
 projects break.
 
-## The website
+## Live website
+
+**https://house-price-prediction-eight-sigma.vercel.app**
 
 Type in a neighbourhood and it prices it instantly. There is no server — the
 browser downloads the model as JSON and does the maths itself, so nothing you
@@ -111,18 +113,15 @@ all 4,128 test neighbourhoods.
 
 ### Deploying it
 
-The site is static, so it needs no server. On [vercel.com](https://vercel.com),
-**Add New → Project → Import** this repository and deploy. `vercel.json` already
-points Vercel at the `web/` folder. If the deploy comes up empty, set **Root
-Directory** to `web` in the project settings instead.
-
-Or from the command line:
+The site is static, so it needs no server:
 
 ```bash
-brew install vercel
-vercel login
 vercel --prod
 ```
+
+`vercel.json` declares `web/` as a static build. That declaration matters:
+without it Vercel spots `requirements.txt` in the root, assumes the project is
+a Python app, and fails the build looking for an entrypoint.
 
 ## Running it
 
